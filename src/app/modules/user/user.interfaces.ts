@@ -16,8 +16,14 @@ export interface IAuthProvider {
 
 export enum IsActive {
     ACTIVE = "ACTIVE",
-    INACTIVE = " INACTIVE",
-    BLOCKED = "BLOCKED" 
+    INACTIVE = "INACTIVE",
+   
+
+}
+
+export enum IsBlocked {
+    BLOCKED = "BLOCKED",
+    UNBLOCKED = "UNBLOCKED"
 
 }
 
@@ -32,7 +38,8 @@ export interface IUser {
     address ?: string;
     isDeleted ?: string;
     isActive ?: IsActive;
-    isVerified ?: boolean;
+    isBlocked?: IsBlocked;
+    isVerified?: boolean;
     role: Role;
     auths : IAuthProvider[]
     booking ?: Types.ObjectId[]

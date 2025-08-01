@@ -1,9 +1,5 @@
 import { model, Schema } from "mongoose"
-import { IAuthProvider, IsActive, IUser, Role } from "./user.interfaces"
-
-
-
-
+import { IAuthProvider, IsActive, IsBlocked,  IUser, Role } from "./user.interfaces"
 
 
 
@@ -35,6 +31,9 @@ const userSchema = new Schema<IUser>({
         enum: Object.values(IsActive),
         default: IsActive.ACTIVE,
         },
+    isBlocked: { type: String,
+        enum: Object.values(IsBlocked),
+         default: IsBlocked.UNBLOCKED },    
     isVerified: { type: Boolean, default: false },
     auths: [authProviderSchema]
 

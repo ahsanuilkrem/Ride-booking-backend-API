@@ -7,14 +7,13 @@ import { envVars } from "../config/env"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
 export const  globalErrorHandler = (err: any, req: Request, res : Response, next : NextFunction) => {
 
+
+    if(envVars.NODE_ENV === "development"){
+        console.log(err);
+    }
+
     let statusCode = 500
     let message =  "Something went wrong!!"
-
-
-    // mongoose Error
-    // 1- dublicate
-    // 2- Cast error
-    // 3- 
 
 
     if(err.code === 11000){

@@ -5,6 +5,7 @@ import app from "./app";
 import { envVars } from "./config/env";
 
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let server : Server;
 
 
@@ -25,7 +26,5 @@ const startServer = async () => {
 
 }
 
-(async () => {
-   await startServer()
-    // await seedSuperAdmin()
-})()
+ startServer()
+   

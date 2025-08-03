@@ -1,7 +1,7 @@
 
 import { Types } from "mongoose";
 
-// Ride Status Type
+
 export type RideStatus =
   | "requested"
   | "accepted"
@@ -12,14 +12,14 @@ export type RideStatus =
   | "cancelled_by_driver"
   | "no_driver_available";
 
-// Location (pickup & destination)
+
 export interface ILocation {
   lat: number;
   lng: number;
   address: string;
 }
 
-// Timestamp log for ride status changes
+
 export interface IRideTimestamps {
   requestedAt: Date;
   acceptedAt?: Date;

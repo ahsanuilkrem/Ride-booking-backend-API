@@ -21,10 +21,7 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
       message: "User Logged in Successfully",
       data: loginInfo,
    })
-
-
 })
-
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getNewAccessToken = catchAsync(async (req: Request, res: Response, next: NextFunction) => {

@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import AppError from "../../../errorHelpers/AppError";
-import { IUser } from "../user/user.interfaces";
-import { User } from "../user/user.model";
 import httpStatus from "http-status-codes"
 import bcryptjs from "bcryptjs"
 import { createNewAccessTokenWithRefreshToken, creatUserToken } from "../../../utils/userToken";
 import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../../config/env";
+import { IUser } from "../user/user.interfaces";
+import { User } from "../user/user.model";
 
 
 const credentialsLogin = async (payload: Partial<IUser>) => {
@@ -36,10 +36,7 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
         refreshToken: userTokens.refreshToken,
           user: rest
     }
-
-
 }
-
 
 const getNewAccessToken = async (refreshToken: string) => {
 

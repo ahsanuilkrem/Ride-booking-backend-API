@@ -1,13 +1,13 @@
 import { model, Schema } from "mongoose"
-import { IAuthProvider, IsActive, IsBlocked,  IUser, Role } from "./user.interfaces"
+import { IAuthProvider,  IsActive, IsBlocked, IUser, Role } from "./user.interfaces"
 
 
 
 const authProviderSchema = new Schema<IAuthProvider>({
-    provider : {type : String, required: true},
-    providerId: {type : String, required : true}
+    provider: { type: String, required: true },
+    providerId: { type: String, required: true }
 }, {
-    versionKey : false,
+    versionKey: false,
     _id: false
 })
 
@@ -25,15 +25,17 @@ const userSchema = new Schema<IUser>({
     phone: { type: String },
     picture: { type: String },
     address: { type: String },
-    isDeleted: { type: Boolean,  default:false },
+    isDeleted: { type: Boolean, default: false },
     isActive: {
-         type: String,
+        type: String,
         enum: Object.values(IsActive),
         default: IsActive.ACTIVE,
-        },
-    isBlocked: { type: String,
+    },
+    isBlocked: {
+        type: String,
         enum: Object.values(IsBlocked),
-         default: IsBlocked.UNBLOCKED },    
+        default: IsBlocked.UNBLOCKED
+    },
     isVerified: { type: Boolean, default: false },
     auths: [authProviderSchema]
 
@@ -44,3 +46,9 @@ const userSchema = new Schema<IUser>({
 
 
 export const User = model<IUser>("User", userSchema)
+
+
+
+
+
+

@@ -21,7 +21,7 @@ export const  globalErrorHandler = (err: any, req: Request, res : Response, next
         statusCode = 400
         message = `${matcheArray[1]} already exists!!`
     }
-    else if(err.name === "CastError"){
+     if(err.name === "CastError"){
         statusCode = 400;
         message = "Invalid MongoDB ObjectID. Please provide a valid id"
     }

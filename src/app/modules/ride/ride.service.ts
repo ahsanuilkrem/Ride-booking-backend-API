@@ -31,7 +31,6 @@ const cancelRide = async (rideId: string, riderId: string) => {
     throw new Error("Ride not found or you are not authorized");
   }
 
- 
   const requestedAt = ride.timestamps.requestedAt;
   const now = new Date();
 
@@ -80,7 +79,7 @@ const getAllRides = async () => {
 
 
 const validTransitions: Record<RideStatus, RideStatus[]> = {
-  requested: ["accepted", "cancelled_by_rider", "no_driver_available"],
+  requested: ["accepted",  "cancelled_by_driver", "no_driver_available"],
   accepted: ["picked_up", "cancelled_by_driver"],
   picked_up: ["in_transit"],
   in_transit: ["completed"],

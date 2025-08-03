@@ -5,7 +5,7 @@ import { IRide, RideStatus } from "./ride.interfaces";
 const RideSchema = new Schema<IRide>(
   {
     rider: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    driver: { type: Schema.Types.ObjectId, ref: "User" }, // Optional until assigned
+    driver: { type: Schema.Types.ObjectId, ref: "Driver" },
 
     pickupLocation: {
       lat: { type: Number, required: true },

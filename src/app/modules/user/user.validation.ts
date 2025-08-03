@@ -1,8 +1,6 @@
 import z from "zod";
 import { IsActive, IsBlocked,  Role } from "./user.interfaces";
 
-
-
   export const creatUserZodSchema = z.object({
             name : z
             .string({ error : "Name must be string"})
@@ -53,7 +51,6 @@ import { IsActive, IsBlocked,  Role } from "./user.interfaces";
            
 
     })
-
 
 
 export const updateUserZodSchema = z.object({

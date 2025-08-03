@@ -15,7 +15,7 @@ const startServer = async () => {
   
      await mongoose.connect(envVars.DB_URL)
 
-          console.log("Connected to Db Ride Booking api");
+          
     server = app.listen(envVars.PORT, ()=>{
         console.log(`server is lisstening to prot ${envVars.PORT}`);
     });

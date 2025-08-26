@@ -143,12 +143,20 @@ const UserUnBlock = async (userId: string, payload: Partial<IUser>, decodedToken
 
 }
 
+const getMe = async (userId: string) => {
+    const user = await User.findById(userId).select("-password");
+    return {
+        data: user
+    }
+};
+
 export const UserService = {
 
     createUser,
     updateUser,
     getAllUsers,
     UserBlock,
-    UserUnBlock
+    UserUnBlock,
+    getMe
 
 }

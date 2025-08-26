@@ -15,7 +15,7 @@ export const checkAuth = (...authRoles: string[]) => async (req: Request, res: R
 
    
   try {
-    const accessToken = req.headers.authorization;
+    const accessToken = req.headers.authorization || req.cookies.accessToken;
 
     if (!accessToken) {
       throw new AppError(403, "no token recievd")
@@ -40,6 +40,10 @@ export const checkAuth = (...authRoles: string[]) => async (req: Request, res: R
     if (isUserExist.isDeleted) {
       throw new AppError(httpStatus.BAD_REQUEST, "user is deleted")
     }
+
+    //  if (isUserExist.isVerified) {
+    //   throw new AppError(httpStatus.BAD_REQUEST, "user is Verified")
+    // }
 
 
 

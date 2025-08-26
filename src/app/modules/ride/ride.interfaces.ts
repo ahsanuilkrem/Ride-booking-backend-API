@@ -1,27 +1,15 @@
 
 import { Types } from "mongoose";
 
-
-export type RideStatus =
-  | "requested"
-  | "accepted"
-  | "picked_up"
-  | "in_transit"
-  | "completed"
-  | "cancelled_by_rider"
-  | "cancelled_by_driver"
-  | "no_driver_available";
+// export interface ILocation {
+//   lat: number;
+//   lng: number;
+//   address: string;
+// }
 
 
-export interface ILocation {
-  lat: number;
-  lng: number;
-  address: string;
-}
-
-
-export interface IRideTimestamps {
-  requestedAt: Date;
+export interface IRidetimestamps {
+  requestedAt?: Date;
   acceptedAt?: Date;
   pickedUpAt?: Date;
   inTransitAt?: Date;
@@ -29,15 +17,28 @@ export interface IRideTimestamps {
   cancelledAt?: Date;
 }
 
+export enum RideStatus {
+  requested ="requested",
+  accepted = "accepted",
+  picked_up = "picked_up",
+  in_transit = "in_transit",
+  completed = "completed",
+  cancelled_by_rider = "cancelled_by_rider",
+  cancelled_by_driver = "cancelled_by_driver",
+  no_driver_available = "no_driver_available"
+}
 
 export interface IRide {
-  _id?: Types.ObjectId;
-  rider: Types.ObjectId;
+   _id?: Types.ObjectId;
+  pickupLocation: string;
+  destinationLocation: string;
+  date: Date;
+  time: string;
+  status?: RideStatus;
+  rideTimestamps?: IRidetimestamps;
+  costFrom?: number;
+  user: Types.ObjectId;
   driver?: Types.ObjectId;
-  pickupLocation: ILocation;
-  destinationLocation: ILocation;
-  status: RideStatus;
-  timestamps: IRideTimestamps;
-  fare?: number;
+  payment?:Types.ObjectId; 
  
 }

@@ -23,7 +23,8 @@ const router = Router()
 
 router.post("/register", validateRequest(creatUserZodSchema), UserControllers.createUser)
 router.get("/all-users", checkAuth(Role.ADMIN), UserControllers.getAllUsers)
-router.patch("/:id", validateRequest(updateUserZodSchema),checkAuth(...Object.values(Role)), UserControllers.updateUser)
+router.get("/me", checkAuth(...Object.values(Role)), UserControllers.getMe)
+router.patch("/:id",  validateRequest(updateUserZodSchema), checkAuth(Role.ADMIN), UserControllers.updateUser)
 router.patch('/block/:id',validateRequest(updateUserZodSchema), checkAuth(Role.ADMIN), UserControllers.Userblock) ;
 router.patch('/unblock/:id', checkAuth(Role.ADMIN), validateRequest(updateUserZodSchema), UserControllers.UserUnblock) ;
 export const UserRoutes = router

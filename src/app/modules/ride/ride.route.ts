@@ -20,10 +20,10 @@ const validateRequest = (zodSchema: AnyZodObject) => async (req: Request, res: R
 
 const router = Router()
 
-router.post("/request", checkAuth(Role.RIDER), validateRequest(requestRideSchema), rideControler.requestRide )
+router.post("/request", checkAuth(...Object.values(Role)), validateRequest(requestRideSchema), rideControler.requestRide)
+router.get("/", checkAuth(Role.ADMIN, Role.DRIVER), rideControler.getAllRides)
+router.get("/myHistory", checkAuth(...Object.values(Role)), rideControler.getRideMyHistory)
 router.patch("/cancel/:id", checkAuth(Role.RIDER), rideControler.cancelRide)
-router.get("/myHistory", checkAuth(Role.RIDER), rideControler.getRideMyHistory)
-router.get("/allRides", checkAuth(Role.ADMIN, Role.DRIVER), rideControler.getAllRides)
 router.patch("/updateStatus/:id", checkAuth(Role.ADMIN, Role.DRIVER), rideControler.updateRideStatus)
 
 

@@ -34,7 +34,8 @@ const getAllDriver = catchAsync(async (req: Request, res: Response) => {
     success: true,
     statusCode: 200,
     message: "Driver All fetched successfully",
-    data: result,
+    data: result.data,
+    meta: result.meta
   });
 })
 

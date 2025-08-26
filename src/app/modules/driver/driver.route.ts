@@ -18,7 +18,7 @@ const validateRequest = (zodSchema: AnyZodObject) => async (req: Request, res: R
 
 const router = Router();
 
-router.post("/create", validateRequest(createDriverSchema), DriverControler.createDriver)
+router.post("/create", checkAuth(...Object.values(Role)), validateRequest(createDriverSchema), DriverControler.createDriver)
 router.patch("/availability/:id",checkAuth(Role.ADMIN, Role.DRIVER), validateRequest(updateDriverSchema), DriverControler.updateStatus);
 router.get("/", checkAuth(Role.ADMIN), DriverControler.getAllDriver);
 router.get("/earnings/:id", DriverControler.getEarnings);

@@ -2,6 +2,8 @@ import AppError from "../../../errorHelpers/AppError";
 import httpStatus from "http-status-codes"
 import { IDriver } from "./driver.interfaces";
 import { Driver } from "./driver.model";
+import { QueryBuilder } from "../../../utils/QueryBuilder";
+import { driverSchemaSearchableFields } from "./driver.constant";
 
 
 
@@ -38,24 +40,34 @@ const updateStatus = async (driverId: string, payload: Partial<IDriver>) => {
 
 const getAllDriver = async (query: Record<string, string>) => {
 
-  const filter = query;
-  const driver = await Driver.find(filter);
-  const totalDriver = await Driver.countDocuments()
+  const queryBuilder = new QueryBuilder(Driver.find(), query)
+
+  const driver = await queryBuilder
+    .search(driverSchemaSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate()
+
+  const [data, meta] = await Promise.all([
+    driver.build(),
+    queryBuilder.getMeta()
+  ])
+
   return {
-    meta: {
-      total: totalDriver
-    },
-    data: driver,
+    data,
+    meta
   }
+
 }
 
-const getDriverEarnings =  async (driverId: string) => {
-    const driver = await Driver.findById(driverId);
-    if (!driver) {
-      throw new AppError(httpStatus.NOT_FOUND, "Driver not found");
-    }
-    return { earnings: driver.earnings };
+const getDriverEarnings = async (driverId: string) => {
+  const driver = await Driver.findById(driverId);
+  if (!driver) {
+    throw new AppError(httpStatus.NOT_FOUND, "Driver not found");
   }
+  return { earnings: driver.earnings };
+}
 
 
 export const driverService = {

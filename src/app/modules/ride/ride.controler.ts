@@ -3,23 +3,15 @@ import { catchAsync } from "../../../utils/catchAsyncts";
 import { sendResponse } from "../../../utils/sendRespone";
 import { RideService } from "./ride.service";
 import httpStatus from "http-status-codes"
+import { JwtPayload } from 'jsonwebtoken';
 
 
 
 const requestRide = catchAsync(async (req: Request, res: Response) => {
-  const riderId = req.user.userId; 
-  const { pickupLocation, destinationLocation } = req.body;
 
-  const ride = await RideService.requestRide({
-    rider: riderId,
-    pickupLocation,
-    destinationLocation,
-    status: "requested",
-    timestamps: {
-      requestedAt: new Date(),
-    },
-  });
-
+  const decodeToken = req.user as JwtPayload
+  const ride = await RideService.requestRide(req.body, decodeToken.userId)
+  
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -31,9 +23,9 @@ const requestRide = catchAsync(async (req: Request, res: Response) => {
 
 const cancelRide = catchAsync(async (req: Request, res: Response) => {
   const riderId = req.user.userId;
-  const rideId = req.params.id;
+  // const rideId = req.params.id;
 
-  const ride = await RideService.cancelRide(rideId, riderId);
+  const ride = await RideService.cancelRide(riderId);
 
   sendResponse(res, {
     statusCode: 200,
@@ -43,29 +35,29 @@ const cancelRide = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getRideMyHistory = catchAsync( async (req: Request, res: Response) => {
-    const riderId = req.user.userId;
+const getRideMyHistory = catchAsync(async (req: Request, res: Response) => {
+  const riderId = req.user.userId;
 
-    const result = await RideService.getRideMyHistory(riderId);
+  const result = await RideService.getRideMyHistory(riderId);
 
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Ride history fetched successfully!",
-      data: result,
-    });
-  }
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Ride history fetched successfully!",
+    data: result,
+  });
+}
 );
 
 
 const getAllRides = catchAsync(async (req: Request, res: Response) => {
   const rides = await RideService.getAllRides();
   sendResponse(res, {
-    statusCode:httpStatus.OK,
+    statusCode: httpStatus.OK,
     success: true,
     message: "All rides fetched successfully",
     data: rides.data,
-    meta :rides.meta
+    meta: rides.meta
   });
 });
 
@@ -73,7 +65,7 @@ const updateRideStatus = async (req: Request, res: Response) => {
   const rideId = req.params.id;
   const { status } = req.body;
 
-  const result = await RideService.updateRideStatus(rideId, status);
+   const result = await RideService.updateRideStatus(rideId, status);
 
   sendResponse(res, {
     statusCode: 200,
@@ -85,11 +77,11 @@ const updateRideStatus = async (req: Request, res: Response) => {
 
 export const rideControler = {
 
-    requestRide,
-    cancelRide,
-    getRideMyHistory,
-    getAllRides,
-    updateRideStatus
+  requestRide,
+  cancelRide,
+  getRideMyHistory,
+  getAllRides,
+  updateRideStatus
 
 }
 

@@ -10,6 +10,15 @@ router.post("/login", Authcontrollers.credentialsLogin)
 router.post("/refresh-token", Authcontrollers.getNewAccessToken)
 router.post("/logout", Authcontrollers.logout)
 router.post("/reset-password", checkAuth(...Object.values(Role)), Authcontrollers.resetPassword)
-
+router.post(
+  "/change-password",
+  checkAuth(...Object.values(Role)),
+  Authcontrollers.changePassword
+);
+router.post(
+  "/set-password",
+  checkAuth(...Object.values(Role)),
+  Authcontrollers.setPassword
+);
 
 export const AuthRouter = router

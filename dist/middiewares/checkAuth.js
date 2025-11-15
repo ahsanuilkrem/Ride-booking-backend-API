@@ -21,7 +21,7 @@ const user_model_1 = require("../app/modules/user/user.model");
 const user_interfaces_1 = require("../app/modules/user/user.interfaces");
 const checkAuth = (...authRoles) => (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const accessToken = req.headers.authorization;
+        const accessToken = req.headers.authorization || req.cookies.accessToken;
         if (!accessToken) {
             throw new AppError_1.default(403, "no token recievd");
         }
@@ -33,8 +33,8 @@ const checkAuth = (...authRoles) => (req, res, next) => __awaiter(void 0, void 0
         if (isUserExist.isActive === user_interfaces_1.IsActive.INACTIVE) {
             throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `user is ${isUserExist.isActive}`);
         }
-        if (isUserExist.isBlocked === user_interfaces_1.IsBlocked.BLOCKED) {
-            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `user is ${isUserExist.isBlocked}`);
+        if (isUserExist.isActive === user_interfaces_1.IsActive.BLOCKED) {
+            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `user is ${isUserExist.isActive}`);
         }
         if (isUserExist.isDeleted) {
             throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "user is deleted");

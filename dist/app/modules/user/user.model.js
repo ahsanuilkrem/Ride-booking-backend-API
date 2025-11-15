@@ -28,11 +28,6 @@ const userSchema = new mongoose_1.Schema({
         enum: Object.values(user_interfaces_1.IsActive),
         default: user_interfaces_1.IsActive.ACTIVE,
     },
-    isBlocked: {
-        type: String,
-        enum: Object.values(user_interfaces_1.IsBlocked),
-        default: user_interfaces_1.IsBlocked.UNBLOCKED
-    },
     isVerified: { type: Boolean, default: false },
     auths: [authProviderSchema]
 }, {

@@ -1,6 +1,6 @@
 import { envVars } from "../../../config/env";
 import AppError from "../../../errorHelpers/AppError";
-import { IAuthProvider, IsBlocked, IUser, Role } from "./user.interfaces";
+import { IAuthProvider, IsActive, IUser, Role } from "./user.interfaces";
 import { User } from "./user.model";
 import httpStatus from "http-status-codes"
 import bcryptjs from "bcryptjs"
@@ -41,14 +41,12 @@ const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken:
     if (!isUserExist) {
         throw new AppError(httpStatus.NOT_FOUND, "User not Found")
     }
+    // if (payload.role) {
+    //     if (decodedToken.role === Role.RIDER || decodedToken.role === Role.DRIVER) {
+    //         throw new AppError(httpStatus.FORBIDDEN, "yor are not Authorized")
+    //     }
+    // }
 
-
-
-    if (payload.role) {
-        if (decodedToken.role === Role.RIDER || decodedToken.role === Role.DRIVER) {
-            throw new AppError(httpStatus.FORBIDDEN, "yor are not Authorized")
-        }
-    }
 
     if (payload.isActive || payload.isDeleted || payload.isVerified) {
         if (decodedToken.role === Role.RIDER || decodedToken.role === Role.DRIVER) {
@@ -92,7 +90,7 @@ const UserBlock = async (userId: string, payload: Partial<IUser>, decodedToken: 
       throw new AppError(httpStatus.FORBIDDEN, 'You are not authorized to block users');
     }
 
-    if (payload.isBlocked) {
+    if (payload.isActive) {
         if (decodedToken.role === Role.RIDER || decodedToken.role === Role.DRIVER) {
             throw new AppError(httpStatus.FORBIDDEN, "yor are not Authorized")
         }
@@ -104,11 +102,9 @@ const UserBlock = async (userId: string, payload: Partial<IUser>, decodedToken: 
         }
     }
 
-    isUserExist.isBlocked = IsBlocked.BLOCKED;
+    isUserExist.isActive = IsActive.BLOCKED;
     await isUserExist.save();
     return isUserExist;
-
-
 
 }
 
@@ -123,7 +119,7 @@ const UserUnBlock = async (userId: string, payload: Partial<IUser>, decodedToken
       throw new AppError(httpStatus.FORBIDDEN, 'You are not authorized to block users');
     }
 
-    if (payload.isBlocked) {
+    if (payload.isActive) {
         if (decodedToken.role === Role.RIDER || decodedToken.role === Role.DRIVER) {
             throw new AppError(httpStatus.FORBIDDEN, "yor are not Authorized")
         }
@@ -135,11 +131,9 @@ const UserUnBlock = async (userId: string, payload: Partial<IUser>, decodedToken
         }
     }
 
-    isUserExist.isBlocked = IsBlocked.UNBLOCKED;
+    isUserExist.isActive = IsActive.ACTIVE;
     await isUserExist.save();
     return isUserExist;
-
-
 
 }
 

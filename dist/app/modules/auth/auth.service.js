@@ -66,8 +66,38 @@ const resetPassword = (oldPassword, newPassword, decodedToken) => __awaiter(void
     user.password = yield bcryptjs_1.default.hash(newPassword, Number(env_1.envVars.BCRYPT_SALT_ROUND));
     user.save();
 });
+const changePassword = (oldPassword, newPassword, decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.findById(decodedToken.userId);
+    const isOldPasswordMatch = yield bcryptjs_1.default.compare(oldPassword, user.password);
+    if (!isOldPasswordMatch) {
+        throw new AppError_1.default(http_status_codes_1.default.UNAUTHORIZED, "Old Password Does not matched");
+    }
+    user.password = yield bcryptjs_1.default.hash(newPassword, Number(env_1.envVars.BCRYPT_SALT_ROUND));
+    user.save();
+});
+const setPassword = (userId, plainPassword) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.findById(userId);
+    if (!user) {
+        throw new AppError_1.default(404, "User not found");
+    }
+    if (user.password &&
+        user.auths.some((providerObject) => providerObject.provider === "google")) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "You have already set you password. Now you can change the password from your profile password update");
+    }
+    const hashedPassword = yield bcryptjs_1.default.hash(plainPassword, Number(env_1.envVars.BCRYPT_SALT_ROUND));
+    const credentialProvider = {
+        provider: "credentials",
+        providerId: user.email,
+    };
+    const auths = [...user.auths, credentialProvider];
+    user.password = hashedPassword;
+    user.auths = auths;
+    yield user.save();
+});
 exports.AuthServices = {
     credentialsLogin,
     getNewAccessToken,
-    resetPassword
+    resetPassword,
+    changePassword,
+    setPassword
 };

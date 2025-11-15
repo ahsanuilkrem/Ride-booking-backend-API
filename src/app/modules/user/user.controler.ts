@@ -4,19 +4,12 @@ import httpStatus from "http-status-codes"
 import { UserService } from "./user.service"
 import { catchAsync } from "../../../utils/catchAsyncts"
 import { sendResponse } from "../../../utils/sendRespone"
-import { JwtPayload } from "jsonwebtoken"
-import { verifyToken } from "../../../utils/jwt"
-import { envVars } from "../../../config/env"
+import { JwtPayload } from 'jsonwebtoken';
 
 
-
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const createUser = catchAsync(async (req: Request, res : Response, next : NextFunction) => {
     
     const user = await UserService.createUser(req.body)  
-
-
    sendResponse(res, {
       success : true,
       statusCode : httpStatus.CREATED,
@@ -28,12 +21,10 @@ const createUser = catchAsync(async (req: Request, res : Response, next : NextFu
 
 const updateUser = catchAsync(async (req: Request, res : Response, next : NextFunction) => {
 
-   const userId = req.params.id;
-   const verifiedToken = req.user;
+   const userId = req.user.userId;
+   const verifiedToken = req.user as JwtPayload
    const payload = req.body;
-   const user = await UserService.updateUser(userId, payload, verifiedToken as JwtPayload)  
-
-
+    const user = await UserService.updateUser(userId, payload, verifiedToken)  
    sendResponse(res, {
       success : true,
       statusCode : httpStatus.CREATED,
@@ -47,7 +38,7 @@ const getAllUsers = catchAsync ( async (req: Request, res : Response, next : Nex
    
       const result = await UserService.getAllUsers();
 
-         sendResponse(res, {
+      sendResponse(res, {
       success : true,
       statusCode : httpStatus.CREATED,
       message : "All Users Retrieved Successfully",
@@ -86,7 +77,7 @@ const UserUnblock = catchAsync(async (req: Request, res : Response, next : NextF
    sendResponse(res, {
       success : true,
       statusCode : httpStatus.CREATED,
-      message : "User blocked Successfully",
+      message : "User Unblocked Successfully",
       data : user
    })
 

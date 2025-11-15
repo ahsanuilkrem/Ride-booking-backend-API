@@ -2,34 +2,29 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ride = void 0;
 const mongoose_1 = require("mongoose");
+const ride_interfaces_1 = require("./ride.interfaces");
+const LocationSchema = new mongoose_1.Schema({
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true },
+}, { _id: false });
 const RideSchema = new mongoose_1.Schema({
-    rider: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
-    driver: { type: mongoose_1.Schema.Types.ObjectId, ref: "Driver" },
-    pickupLocation: {
-        lat: { type: Number, required: true },
-        lng: { type: Number, required: true },
-        address: { type: String, required: true },
+    userId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", },
+    driver: { type: mongoose_1.Schema.Types.ObjectId, ref: "driver", require: true, },
+    payment: { type: mongoose_1.Schema.Types.ObjectId, ref: "Payment" },
+    pickupLocation: { type: LocationSchema, required: true },
+    pickupAddress: { type: String, required: true },
+    destinationLocation: { type: LocationSchema, required: true },
+    destinationAddress: { type: String, required: true },
+    date: { type: Date, },
+    status: { type: String,
+        enum: Object.values(ride_interfaces_1.RideStatus),
+        default: ride_interfaces_1.RideStatus.requested,
     },
-    destinationLocation: {
-        lat: { type: Number, required: true },
-        lng: { type: Number, required: true },
-        address: { type: String, required: true },
+    fare: { type: Number, default: 0 },
+    vehicleType: { type: String,
+        enum: Object.values(ride_interfaces_1.VehicleType),
     },
-    status: {
-        type: String,
-        enum: [
-            "requested",
-            "accepted",
-            "picked_up",
-            "in_transit",
-            "completed",
-            "cancelled_by_rider",
-            "cancelled_by_driver",
-            "no_driver_available",
-        ],
-        default: "requested",
-    },
-    timestamps: {
+    rideTimestamps: {
         requestedAt: { type: Date, default: Date.now },
         acceptedAt: { type: Date },
         pickedUpAt: { type: Date },
@@ -37,8 +32,11 @@ const RideSchema = new mongoose_1.Schema({
         completedAt: { type: Date },
         cancelledAt: { type: Date },
     },
-    fare: { type: Number },
+    paymentMethod: { type: String,
+        enum: Object.values(ride_interfaces_1.paymentMethod),
+    },
 }, {
     timestamps: true,
+    versionKey: false
 });
 exports.Ride = (0, mongoose_1.model)("Ride", RideSchema);

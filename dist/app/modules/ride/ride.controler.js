@@ -18,17 +18,8 @@ const sendRespone_1 = require("../../../utils/sendRespone");
 const ride_service_1 = require("./ride.service");
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const requestRide = (0, catchAsyncts_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const riderId = req.user.userId;
-    const { pickupLocation, destinationLocation } = req.body;
-    const ride = yield ride_service_1.RideService.requestRide({
-        rider: riderId,
-        pickupLocation,
-        destinationLocation,
-        status: "requested",
-        timestamps: {
-            requestedAt: new Date(),
-        },
-    });
+    const decodeToken = req.user;
+    const ride = yield ride_service_1.RideService.requestRide(req.body, decodeToken.userId);
     (0, sendRespone_1.sendResponse)(res, {
         statusCode: 201,
         success: true,
@@ -37,9 +28,8 @@ const requestRide = (0, catchAsyncts_1.catchAsync)((req, res) => __awaiter(void 
     });
 }));
 const cancelRide = (0, catchAsyncts_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const riderId = req.user.userId;
-    const rideId = req.params.id;
-    const ride = yield ride_service_1.RideService.cancelRide(rideId, riderId);
+    const riderId = req.user.user;
+    const ride = yield ride_service_1.RideService.cancelRide(riderId);
     (0, sendRespone_1.sendResponse)(res, {
         statusCode: 200,
         success: true,
@@ -48,13 +38,15 @@ const cancelRide = (0, catchAsyncts_1.catchAsync)((req, res) => __awaiter(void 0
     });
 }));
 const getRideMyHistory = (0, catchAsyncts_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const riderId = req.user.userId;
-    const result = yield ride_service_1.RideService.getRideMyHistory(riderId);
+    const query = req.query;
+    const decodedToken = req.user;
+    const result = yield ride_service_1.RideService.getRideMyHistory(decodedToken.userId, query);
     (0, sendRespone_1.sendResponse)(res, {
-        statusCode: http_status_codes_1.default.OK,
+        statusCode: 200,
         success: true,
-        message: "Ride history fetched successfully!",
-        data: result,
+        message: "Ride history fetched successfully",
+        data: result.data,
+        meta: result.meta
     });
 }));
 const getAllRides = (0, catchAsyncts_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -68,9 +60,10 @@ const getAllRides = (0, catchAsyncts_1.catchAsync)((req, res) => __awaiter(void 
     });
 }));
 const updateRideStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const rideId = req.params.id;
-    const { status } = req.body;
-    const result = yield ride_service_1.RideService.updateRideStatus(rideId, status);
+    const { rideId } = req.params;
+    const decodedToken = req.user;
+    const { rideStatus } = req.body;
+    const result = yield ride_service_1.RideService.updateRideStatus(decodedToken.userId, rideId, rideStatus);
     (0, sendRespone_1.sendResponse)(res, {
         statusCode: 200,
         success: true,
@@ -78,10 +71,21 @@ const updateRideStatus = (req, res) => __awaiter(void 0, void 0, void 0, functio
         data: result,
     });
 });
+const viewEarningHistory = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const decodedToken = req.user;
+    const result = yield ride_service_1.RideService.viewEarningHistory(decodedToken.userId);
+    (0, sendRespone_1.sendResponse)(res, {
+        statusCode: http_status_codes_1.default.OK,
+        success: true,
+        message: "Driver Earning History has been retrieve successfully",
+        data: result,
+    });
+}));
 exports.rideControler = {
     requestRide,
     cancelRide,
     getRideMyHistory,
     getAllRides,
-    updateRideStatus
+    updateRideStatus,
+    viewEarningHistory,
 };

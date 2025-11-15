@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
-     "build": "tsc",
+    "build": "tsc",
     "lint": "npx eslint ./src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -28,6 +28,7 @@
     "typescript-eslint": "^8.38.0"
   },
   "dependencies": {
+    "@types/http-status-codes": "^1.2.0",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

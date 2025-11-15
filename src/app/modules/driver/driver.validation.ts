@@ -1,55 +1,42 @@
 import z from "zod";
-import { availaStatus, IsStatus } from "./driver.interfaces";
+import { availaStatus, IsStatus, VEHICLE_TYPE } from "./driver.interfaces";
 
 
 
 export const createDriverSchema = z.object({
-    name: z
-        .string({ error: "Name must be string" })
-        .min(2, { message: "Name  must be at least 2 character long " })
-        .max(50, { message: "Name cannot exceed 50 characters." }),
-    location: z
-        .string({ error: "location must be string" }),
-    phone: z.
-        string({ error: "Phone must be string" })
-        .regex(/^(?:\+8801\d{9}|01\d{9})$/, {
-         message: "Phone number must be valid for Bangladesh. Format: +8801xxxxxxxxx or 01xxxxxxxxx",
-        }),
+    name: z.string().optional(),
+    phone: z.string().optional(),
+    addres: z.string().optional(),  
+    vehicleType: z.string({ error: "Vehicle type is required" }),
+    vehicleModel: z.string({ error: "Vehicle model is required" }),
+    licenseNumber: z.string({ error: "License number is required" }),
     vehicleNumber: z
-        .string({ error: "licensePlate must be string" }),
+        .string({ error: "vehicle Number must be string" }),
     availability: z
         .enum(Object.values(availaStatus) as [string])
         .optional(),
     status: z
         .enum(Object.values(IsStatus) as [string])
-        .optional(),
+        .optional(),   
     earnings: z
         .number({ error: "earnings must be number" })
         .optional(),
-    rides: z
+    riderId: z
+        .string()
+        .optional(),
+    userId: z
         .string()
         .optional(),
 
 })
 
 export const updateDriverSchema = z.object({
-    name: z
-        .string({ error: "Name must be string" })
-        .min(2, { message: "Name  must be at least 2 character long " })
-        .max(50, { message: "Name cannot exceed 50 characters." })
-        .optional(),
-    location: z
-        .string({ error: "location must be string" })
-        .optional(),
-    phone: z.
-        string({ error: "Phone must be string" })
-        .regex(/^(?:\+8801\d{9}|01\d{9})$/, {
-            message: "Phone number must be valid for Bangladesh. Format: +8801xxxxxxxxx or 01xxxxxxxxx",
-        })
-        .optional(),
+    vehicleType: z.string({ error: "Vehicle type is required" }),
+    vehicleModel: z.string({ error: "Vehicle model is required" }),
+    licenseNumber: z.string({ error: "License number is required" }),
     vehicleNumber: z
         .string({ error: "licensePlate must be string" })
-        .optional(),
+        .optional(),   
     availability: z
         .enum(Object.values(availaStatus) as [string])
         .optional(),
@@ -62,5 +49,23 @@ export const updateDriverSchema = z.object({
 
 })
 
+export const updateMyDriverProfileZodSchema = z.object({
+  vehicleType: z.enum(VEHICLE_TYPE).optional(),
+  vehicleModel: z.string().min(1).optional(),
+  vehicleNumber: z.string().min(1).optional(),
+  licenseNumber: z.string().min(1).optional(),
+  availability: z.enum(availaStatus).optional(),
+});
 
+
+export const updateAvailabilityZodSchema = z.object({
+    availability: z
+        .enum(Object.values(availaStatus) as [string])
+});
+
+export const updateDriverStatusZodSchema = z.object({
+  status: z.enum(Object.values(IsStatus), {
+    error: "Driver status is required", 
+  }),
+});
 

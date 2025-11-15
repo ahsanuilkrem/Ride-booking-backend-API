@@ -27,7 +27,8 @@ const validateRequest = (zodSchema) => (req, res, next) => __awaiter(void 0, voi
 const router = (0, express_1.Router)();
 router.post("/register", validateRequest(user_validation_1.creatUserZodSchema), user_controler_1.UserControllers.createUser);
 router.get("/all-users", (0, checkAuth_1.checkAuth)(user_interfaces_1.Role.ADMIN), user_controler_1.UserControllers.getAllUsers);
-router.patch("/:id", validateRequest(user_validation_1.updateUserZodSchema), (0, checkAuth_1.checkAuth)(...Object.values(user_interfaces_1.Role)), user_controler_1.UserControllers.updateUser);
+router.get("/me", (0, checkAuth_1.checkAuth)(...Object.values(user_interfaces_1.Role)), user_controler_1.UserControllers.getMe);
+router.patch("/:userId", validateRequest(user_validation_1.updateUserZodSchema), (0, checkAuth_1.checkAuth)(...Object.values(user_interfaces_1.Role)), user_controler_1.UserControllers.updateUser);
 router.patch('/block/:id', validateRequest(user_validation_1.updateUserZodSchema), (0, checkAuth_1.checkAuth)(user_interfaces_1.Role.ADMIN), user_controler_1.UserControllers.Userblock);
 router.patch('/unblock/:id', (0, checkAuth_1.checkAuth)(user_interfaces_1.Role.ADMIN), validateRequest(user_validation_1.updateUserZodSchema), user_controler_1.UserControllers.UserUnblock);
 exports.UserRoutes = router;

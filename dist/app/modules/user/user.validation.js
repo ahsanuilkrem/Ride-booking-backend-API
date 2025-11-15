@@ -43,9 +43,6 @@ exports.creatUserZodSchema = zod_1.default.object({
     isDeleted: zod_1.default
         .boolean({ error: "isDeleted must be true or false" })
         .optional(),
-    isBlocked: zod_1.default
-        .enum(Object.values(user_interfaces_1.IsBlocked))
-        .optional(),
     isVerified: zod_1.default
         .boolean({ error: "isVerified must be true or false" })
         .optional(),
@@ -82,9 +79,6 @@ exports.updateUserZodSchema = zod_1.default.object({
         .optional(),
     isActive: zod_1.default
         .enum(Object.values(user_interfaces_1.IsActive))
-        .optional(),
-    isBlocked: zod_1.default
-        .enum(Object.values(user_interfaces_1.IsBlocked))
         .optional(),
     isDeleted: zod_1.default
         .boolean({ error: "isDeleted must be true or false" })

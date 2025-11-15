@@ -7,7 +7,7 @@ import { verifyToken } from "../utils/jwt";
 import { envVars } from "../config/env";
 import { JwtPayload } from "jsonwebtoken";
 import { User } from "../app/modules/user/user.model";
-import { IsActive, IsBlocked } from "../app/modules/user/user.interfaces";
+import { IsActive } from "../app/modules/user/user.interfaces";
 
 
 
@@ -34,18 +34,14 @@ export const checkAuth = (...authRoles: string[]) => async (req: Request, res: R
     if (isUserExist.isActive === IsActive.INACTIVE) {
       throw new AppError(httpStatus.BAD_REQUEST, `user is ${isUserExist.isActive}`)
     }
-    if (isUserExist.isBlocked === IsBlocked.BLOCKED) {
-      throw new AppError(httpStatus.BAD_REQUEST, `user is ${isUserExist.isBlocked}`)
+    if (isUserExist.isActive === IsActive.BLOCKED) {
+      throw new AppError(httpStatus.BAD_REQUEST, `user is ${isUserExist.isActive}`)
     }
     if (isUserExist.isDeleted) {
       throw new AppError(httpStatus.BAD_REQUEST, "user is deleted")
     }
 
-    //  if (isUserExist.isVerified) {
-    //   throw new AppError(httpStatus.BAD_REQUEST, "user is Verified")
-    // }
-
-
+    
 
     if (!authRoles.includes(verifiedToken.role)) {
 

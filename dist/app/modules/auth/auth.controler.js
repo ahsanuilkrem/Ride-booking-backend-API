@@ -15,11 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Authcontrollers = void 0;
 const catchAsyncts_1 = require("../../../utils/catchAsyncts");
 const sendRespone_1 = require("../../../utils/sendRespone");
-const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const auth_service_1 = require("./auth.service");
 const AppError_1 = __importDefault(require("../../../errorHelpers/AppError"));
 const setCooki_1 = require("../../../utils/setCooki");
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const credentialsLogin = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const loginInfo = yield auth_service_1.AuthServices.credentialsLogin(req.body);
     (0, setCooki_1.setAuthCookie)(res, loginInfo);
@@ -30,7 +29,6 @@ const credentialsLogin = (0, catchAsyncts_1.catchAsync)((req, res, next) => __aw
         data: loginInfo,
     });
 }));
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getNewAccessToken = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
@@ -45,7 +43,6 @@ const getNewAccessToken = (0, catchAsyncts_1.catchAsync)((req, res, next) => __a
         data: tokenInfo,
     });
 }));
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const logout = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     res.clearCookie("accessToken", {
         httpOnly: true,
@@ -64,12 +61,10 @@ const logout = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(void
         data: null,
     });
 }));
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const resetPassword = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const newPassword = req.body.newPassword;
     const oldPassword = req.body.oldPassword;
     const decodedToken = req.user;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     yield auth_service_1.AuthServices.resetPassword(oldPassword, newPassword, decodedToken);
     (0, sendRespone_1.sendResponse)(res, {
         success: true,
@@ -78,9 +73,34 @@ const resetPassword = (0, catchAsyncts_1.catchAsync)((req, res, next) => __await
         data: null,
     });
 }));
+const changePassword = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const newPassword = req.body.newPassword;
+    const oldPassword = req.body.oldPassword;
+    const decodedToken = req.user;
+    yield auth_service_1.AuthServices.changePassword(oldPassword, newPassword, decodedToken);
+    (0, sendRespone_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.OK,
+        message: "Password Changed Successfully",
+        data: null,
+    });
+}));
+const setPassword = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const decodedToken = req.user;
+    const { password } = req.body;
+    yield auth_service_1.AuthServices.setPassword(decodedToken.userId, password);
+    (0, sendRespone_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.OK,
+        message: "Password Changed Successfully",
+        data: null,
+    });
+}));
 exports.Authcontrollers = {
     credentialsLogin,
     getNewAccessToken,
     logout,
     resetPassword,
+    changePassword,
+    setPassword
 };

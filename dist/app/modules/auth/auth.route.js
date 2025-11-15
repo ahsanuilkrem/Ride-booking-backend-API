@@ -10,4 +10,6 @@ router.post("/login", auth_controler_1.Authcontrollers.credentialsLogin);
 router.post("/refresh-token", auth_controler_1.Authcontrollers.getNewAccessToken);
 router.post("/logout", auth_controler_1.Authcontrollers.logout);
 router.post("/reset-password", (0, checkAuth_1.checkAuth)(...Object.values(user_interfaces_1.Role)), auth_controler_1.Authcontrollers.resetPassword);
+router.post("/change-password", (0, checkAuth_1.checkAuth)(...Object.values(user_interfaces_1.Role)), auth_controler_1.Authcontrollers.changePassword);
+router.post("/set-password", (0, checkAuth_1.checkAuth)(...Object.values(user_interfaces_1.Role)), auth_controler_1.Authcontrollers.setPassword);
 exports.AuthRouter = router;

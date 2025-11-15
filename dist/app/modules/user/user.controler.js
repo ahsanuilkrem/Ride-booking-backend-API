@@ -17,7 +17,6 @@ const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const user_service_1 = require("./user.service");
 const catchAsyncts_1 = require("../../../utils/catchAsyncts");
 const sendRespone_1 = require("../../../utils/sendRespone");
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const createUser = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_service_1.UserService.createUser(req.body);
     (0, sendRespone_1.sendResponse)(res, {
@@ -28,7 +27,7 @@ const createUser = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(
     });
 }));
 const updateUser = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.params.id;
+    const userId = req.user.userId;
     const verifiedToken = req.user;
     const payload = req.body;
     const user = yield user_service_1.UserService.updateUser(userId, payload, verifiedToken);
@@ -69,8 +68,18 @@ const UserUnblock = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter
     (0, sendRespone_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.CREATED,
-        message: "User blocked Successfully",
+        message: "User Unblocked Successfully",
         data: user
+    });
+}));
+const getMe = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const decodedToken = req.user;
+    const result = yield user_service_1.UserService.getMe(decodedToken.userId);
+    (0, sendRespone_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.CREATED,
+        message: "Your profile Retrieved Successfully",
+        data: result.data
     });
 }));
 exports.UserControllers = {
@@ -78,5 +87,6 @@ exports.UserControllers = {
     updateUser,
     getAllUsers,
     Userblock,
-    UserUnblock
+    UserUnblock,
+    getMe
 };

@@ -25,9 +25,10 @@ const validateRequest = (zodSchema) => (req, res, next) => __awaiter(void 0, voi
     }
 });
 const router = (0, express_1.Router)();
-router.post("/request", (0, checkAuth_1.checkAuth)(user_interfaces_1.Role.RIDER), validateRequest(ride_validation_1.requestRideSchema), ride_controler_1.rideControler.requestRide);
+router.post("/request", (0, checkAuth_1.checkAuth)(...Object.values(user_interfaces_1.Role)), validateRequest(ride_validation_1.requestRideSchema), ride_controler_1.rideControler.requestRide);
+router.get("/", (0, checkAuth_1.checkAuth)(user_interfaces_1.Role.ADMIN, user_interfaces_1.Role.DRIVER), ride_controler_1.rideControler.getAllRides);
+router.get("/myHistory", (0, checkAuth_1.checkAuth)(...Object.values(user_interfaces_1.Role)), ride_controler_1.rideControler.getRideMyHistory);
 router.patch("/cancel/:id", (0, checkAuth_1.checkAuth)(user_interfaces_1.Role.RIDER), ride_controler_1.rideControler.cancelRide);
-router.get("/myHistory", (0, checkAuth_1.checkAuth)(user_interfaces_1.Role.RIDER), ride_controler_1.rideControler.getRideMyHistory);
-router.get("/allRides", (0, checkAuth_1.checkAuth)(user_interfaces_1.Role.ADMIN, user_interfaces_1.Role.DRIVER), ride_controler_1.rideControler.getAllRides);
-router.patch("/updateStatus/:id", (0, checkAuth_1.checkAuth)(user_interfaces_1.Role.ADMIN, user_interfaces_1.Role.DRIVER), ride_controler_1.rideControler.updateRideStatus);
+router.patch("/rideStatus/:rideId", (0, checkAuth_1.checkAuth)(user_interfaces_1.Role.ADMIN, user_interfaces_1.Role.DRIVER), ride_controler_1.rideControler.updateRideStatus);
+router.get("/earnings", (0, checkAuth_1.checkAuth)(user_interfaces_1.Role.DRIVER), ride_controler_1.rideControler.viewEarningHistory);
 exports.RideRoutes = router;

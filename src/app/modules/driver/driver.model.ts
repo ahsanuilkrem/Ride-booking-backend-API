@@ -1,17 +1,23 @@
 import { model, Schema } from "mongoose";
-import { availaStatus, IDriver, IsStatus } from "./driver.interfaces";
+import { availaStatus, IDriver, IsStatus, VEHICLE_TYPE } from "./driver.interfaces";
 
 const driverSchema = new Schema<IDriver>(
   {
-
-    name: {type: String, required: true },
-    location: {type: String, required: true },
-    phone: {type: String, required: true },
+    name:{type:String},
+    phone:{type:String},
+    addres:{type:String},
+    vehicleModel: { type: String, required: true },
+    licenseNumber: { type: String, required: true },
     vehicleNumber: { type: String, required: true },
+    vehicleType: {
+      type: String,
+      enum: Object.values(VEHICLE_TYPE),
+      required: true,
+    },
     availability: {
       type: String,
       enum: Object.values(availaStatus),
-      default: availaStatus.OFFLINE
+      default: availaStatus.AVAILABLE
     },
     status: {
       type: String,
@@ -19,14 +25,25 @@ const driverSchema = new Schema<IDriver>(
       default: IsStatus.PENDING
     },
     earnings: { type: Number, default: 0 },
-     rides: {
-        type: Schema.Types.ObjectId,
-        ref: "Ride",
-       
+    appliedAt: { type: Date, default: Date.now },
+    approvedAt: { type: Date },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      unique: true,
     },
+    riderId: [{
+      type: Schema.Types.ObjectId,
+      ref: "Ride",
+
+    }],
 
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    versionKey: false
+  }
 );
 
 export const Driver = model<IDriver>("driver", driverSchema)

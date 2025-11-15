@@ -1,5 +1,5 @@
 import z from "zod";
-import { IsActive, IsBlocked,  Role } from "./user.interfaces";
+import { IsActive,  Role } from "./user.interfaces";
 
   export const creatUserZodSchema = z.object({
             name : z
@@ -37,9 +37,6 @@ import { IsActive, IsBlocked,  Role } from "./user.interfaces";
             .optional(),
             isDeleted: z
             .boolean({error : "isDeleted must be true or false"})
-            .optional(),
-            isBlocked: z
-            .enum(Object.values(IsBlocked) as [string]) 
             .optional(),
             isVerified: z
             .boolean({error : "isVerified must be true or false"})
@@ -82,9 +79,6 @@ export const updateUserZodSchema = z.object({
             isActive: z
             .enum(Object.values(IsActive) as [string])
             .optional(),
-            isBlocked: z
-            .enum(Object.values(IsBlocked) as [string]) 
-            .optional(),
             isDeleted: z
             .boolean({error : "isDeleted must be true or false"})
             .optional(),
@@ -95,6 +89,5 @@ export const updateUserZodSchema = z.object({
             .string({ error : "Address must be string"})
             .max(200, {message: "Address cannot exceed 2000 characters."})
             .optional()
-           
-
+        
     })    

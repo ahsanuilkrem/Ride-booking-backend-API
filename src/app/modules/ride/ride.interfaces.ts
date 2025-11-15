@@ -1,12 +1,6 @@
 
 import { Types } from "mongoose";
 
-// export interface ILocation {
-//   lat: number;
-//   lng: number;
-//   address: string;
-// }
-
 
 export interface IRidetimestamps {
   requestedAt?: Date;
@@ -15,6 +9,24 @@ export interface IRidetimestamps {
   inTransitAt?: Date;
   completedAt?: Date;
   cancelledAt?: Date;
+}
+
+export interface ILocation {
+  lat: number;
+  lng: number;
+ 
+};
+
+
+
+export enum paymentMethod {
+  cash="cash",
+  card= "card", 
+} 
+
+export enum VehicleType{
+  CAR="CAR",
+  BIKE="BIKE"
 }
 
 export enum RideStatus {
@@ -28,17 +40,25 @@ export enum RideStatus {
   no_driver_available = "no_driver_available"
 }
 
+
 export interface IRide {
    _id?: Types.ObjectId;
-  pickupLocation: string;
-  destinationLocation: string;
+  userId: Types.ObjectId;
+  driver: Types.ObjectId; 
+  pickupLocation: ILocation;
+  pickupAddress: string;
+  destinationLocation: ILocation;
+  destinationAddress: string;
   date: Date;
-  time: string;
-  status?: RideStatus;
+  fare?: number;
+  status: RideStatus;
+  vehicleType:VehicleType;
   rideTimestamps?: IRidetimestamps;
-  costFrom?: number;
-  user: Types.ObjectId;
-  driver?: Types.ObjectId;
-  payment?:Types.ObjectId; 
+  paymentMethod ?: paymentMethod;
+  payment?:Types.ObjectId;
+  createdAt?: string;
+  updatedAt?: string; 
  
 }
+
+

@@ -6,7 +6,7 @@ import { IPayment, PAYMENT_STATUS } from "./payment.interfaces";
 
 const PaymentSchema = new Schema<IPayment>(
   {
-    rider: { type: Schema.Types.ObjectId, required: true, ref: "Ride",},
+    rider: { type: Schema.Types.ObjectId,  ref: "Ride",},
     transanctionId: {type: String, required: true, unique: true},
     status: {type: String, 
         enum : Object.values(PAYMENT_STATUS),
@@ -24,7 +24,8 @@ const PaymentSchema = new Schema<IPayment>(
     }
   },
   {
-    timestamps: true, 
+    timestamps: true,
+    versionKey: false 
   
   }
 );

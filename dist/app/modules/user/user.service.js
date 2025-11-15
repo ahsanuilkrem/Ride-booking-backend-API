@@ -46,11 +46,11 @@ const updateUser = (userId, payload, decodedToken) => __awaiter(void 0, void 0, 
     if (!isUserExist) {
         throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "User not Found");
     }
-    if (payload.role) {
-        if (decodedToken.role === user_interfaces_1.Role.RIDER || decodedToken.role === user_interfaces_1.Role.DRIVER) {
-            throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "yor are not Authorized");
-        }
-    }
+    // if (payload.role) {
+    //     if (decodedToken.role === Role.RIDER || decodedToken.role === Role.DRIVER) {
+    //         throw new AppError(httpStatus.FORBIDDEN, "yor are not Authorized")
+    //     }
+    // }
     if (payload.isActive || payload.isDeleted || payload.isVerified) {
         if (decodedToken.role === user_interfaces_1.Role.RIDER || decodedToken.role === user_interfaces_1.Role.DRIVER) {
             throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "yor are not Authorized");
@@ -80,7 +80,7 @@ const UserBlock = (userId, payload, decodedToken) => __awaiter(void 0, void 0, v
     if (decodedToken.role !== user_interfaces_1.Role.ADMIN) {
         throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, 'You are not authorized to block users');
     }
-    if (payload.isBlocked) {
+    if (payload.isActive) {
         if (decodedToken.role === user_interfaces_1.Role.RIDER || decodedToken.role === user_interfaces_1.Role.DRIVER) {
             throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "yor are not Authorized");
         }
@@ -90,7 +90,7 @@ const UserBlock = (userId, payload, decodedToken) => __awaiter(void 0, void 0, v
             throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "yor are not Authorized");
         }
     }
-    isUserExist.isBlocked = user_interfaces_1.IsBlocked.BLOCKED;
+    isUserExist.isActive = user_interfaces_1.IsActive.BLOCKED;
     yield isUserExist.save();
     return isUserExist;
 });
@@ -102,7 +102,7 @@ const UserUnBlock = (userId, payload, decodedToken) => __awaiter(void 0, void 0,
     if (decodedToken.role !== user_interfaces_1.Role.ADMIN) {
         throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, 'You are not authorized to block users');
     }
-    if (payload.isBlocked) {
+    if (payload.isActive) {
         if (decodedToken.role === user_interfaces_1.Role.RIDER || decodedToken.role === user_interfaces_1.Role.DRIVER) {
             throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "yor are not Authorized");
         }
@@ -112,14 +112,21 @@ const UserUnBlock = (userId, payload, decodedToken) => __awaiter(void 0, void 0,
             throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "yor are not Authorized");
         }
     }
-    isUserExist.isBlocked = user_interfaces_1.IsBlocked.UNBLOCKED;
+    isUserExist.isActive = user_interfaces_1.IsActive.ACTIVE;
     yield isUserExist.save();
     return isUserExist;
+});
+const getMe = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.findById(userId).select("-password");
+    return {
+        data: user
+    };
 });
 exports.UserService = {
     createUser,
     updateUser,
     getAllUsers,
     UserBlock,
-    UserUnBlock
+    UserUnBlock,
+    getMe
 };

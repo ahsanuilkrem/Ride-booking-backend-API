@@ -50,7 +50,9 @@ const getRideMyHistory = (0, catchAsyncts_1.catchAsync)((req, res) => __awaiter(
     });
 }));
 const getAllRides = (0, catchAsyncts_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const rides = yield ride_service_1.RideService.getAllRides();
+    const query = req.query;
+    const decodedToken = req.user;
+    const rides = yield ride_service_1.RideService.getAllRides(decodedToken.userId, query);
     (0, sendRespone_1.sendResponse)(res, {
         statusCode: http_status_codes_1.default.OK,
         success: true,

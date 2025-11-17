@@ -121,16 +121,29 @@ const getRideMyHistory = (userId, query) => __awaiter(void 0, void 0, void 0, fu
         meta: meta,
     };
 });
-const getAllRides = () => __awaiter(void 0, void 0, void 0, function* () {
-    const rides = yield ride_model_1.Ride.find()
-        // .populate("ride", "name email")
-        .sort({ createdAt: -1 });
-    const totalUsers = yield ride_model_1.Ride.countDocuments();
+const getAllRides = (userId, query) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.findById(userId);
+    if (!user) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "User not found");
+    }
+    const queryBuilder = new QueryBuilder_1.QueryBuilder(ride_model_1.Ride.find(), query);
+    const ridesQuery = queryBuilder
+        .search(ride_constant_1.riderSchemaSearchableFields)
+        .filter()
+        .sort()
+        .fields()
+        .paginate();
+    const [data, meta] = yield Promise.all([
+        ridesQuery.build(),
+        queryBuilder.getMeta(),
+    ]);
+    // const rides = await Ride.find()
+    //   // .populate("ride", "name email")
+    //   .sort({ createdAt: -1 });
+    // const totalUsers = await Ride.countDocuments()
     return {
-        data: rides,
-        meta: {
-            total: totalUsers
-        }
+        data,
+        meta,
     };
 });
 const validTransitions = {
@@ -236,9 +249,7 @@ const updateRideStatus = (userId, rideId, newStatus) => __awaiter(void 0, void 0
             cancelled_by_rider: "cancelledAt",
             no_driver_available: "cancelledAt",
         };
-        const updateData = {
-            status: newStatus,
-            rideTimestamps: Object.assign(Object.assign({}, ride.rideTimestamps), { [statusToTimestampField[newStatus]]: now }),
+        const updateData = { status: newStatus, rideTimestamps: Object.assign(Object.assign({}, ride.rideTimestamps), { [statusToTimestampField[newStatus]]: now }),
         };
         // ✅ Assign driver on first accept
         if (!ride.driver && newStatus === ride_interfaces_1.RideStatus.accepted) {

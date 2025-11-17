@@ -46,11 +46,11 @@ const updateUser = (userId, payload, decodedToken) => __awaiter(void 0, void 0, 
     if (!isUserExist) {
         throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "User not Found");
     }
-    // if (payload.role) {
-    //     if (decodedToken.role === Role.RIDER || decodedToken.role === Role.DRIVER) {
-    //         throw new AppError(httpStatus.FORBIDDEN, "yor are not Authorized")
-    //     }
-    // }
+    if (payload.role) {
+        if (decodedToken.role === user_interfaces_1.Role.RIDER || decodedToken.role === user_interfaces_1.Role.DRIVER) {
+            throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "yor are not Authorized");
+        }
+    }
     if (payload.isActive || payload.isDeleted || payload.isVerified) {
         if (decodedToken.role === user_interfaces_1.Role.RIDER || decodedToken.role === user_interfaces_1.Role.DRIVER) {
             throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "yor are not Authorized");
@@ -122,11 +122,31 @@ const getMe = (userId) => __awaiter(void 0, void 0, void 0, function* () {
         data: user
     };
 });
+const updateUserProfile = (id, payload, decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
+    const isUserExist = yield user_model_1.User.findById(id);
+    if (!isUserExist) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "User not Found");
+    }
+    if (payload.isActive) {
+        if (decodedToken.isActive === user_interfaces_1.IsActive.BLOCKED || decodedToken.isActive === user_interfaces_1.IsActive.INACTIVE) {
+            throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "yor are not Authorized");
+        }
+    }
+    if (payload.password) {
+        payload.password = yield bcryptjs_1.default.hash(payload.password, env_1.envVars.BCRYPT_SALT_ROUND);
+    }
+    const newUpdateUser = yield user_model_1.User.findByIdAndUpdate(id, payload, {
+        new: true,
+        runValidators: true
+    });
+    return newUpdateUser;
+});
 exports.UserService = {
     createUser,
     updateUser,
     getAllUsers,
     UserBlock,
     UserUnBlock,
-    getMe
+    getMe,
+    updateUserProfile
 };

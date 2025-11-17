@@ -27,7 +27,7 @@ const createUser = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(
     });
 }));
 const updateUser = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.user.userId;
+    const userId = req.params.userId;
     const verifiedToken = req.user;
     const payload = req.body;
     const user = yield user_service_1.UserService.updateUser(userId, payload, verifiedToken);
@@ -82,11 +82,24 @@ const getMe = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(void 
         data: result.data
     });
 }));
+const updateUserProfile = (0, catchAsyncts_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const verifiedToken = req.user;
+    const id = req.params.id;
+    const payload = req.body;
+    const user = yield user_service_1.UserService.updateUserProfile(id, payload, verifiedToken);
+    (0, sendRespone_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.CREATED,
+        message: "User Updated profile Successfully",
+        data: user,
+    });
+}));
 exports.UserControllers = {
     createUser,
     updateUser,
     getAllUsers,
     Userblock,
     UserUnblock,
-    getMe
+    getMe,
+    updateUserProfile
 };

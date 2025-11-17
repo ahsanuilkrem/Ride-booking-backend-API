@@ -49,7 +49,9 @@ const getRideMyHistory = catchAsync(async (req: Request, res: Response) => {
 
 
 const getAllRides = catchAsync(async (req: Request, res: Response) => {
-  const rides = await RideService.getAllRides();
+   const query = req.query as Record<string, string>;
+   const decodedToken = req.user as JwtPayload;
+  const rides = await RideService.getAllRides(decodedToken.userId, query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

@@ -158,18 +158,34 @@ const getRideMyHistory = async (
   };
 };
 
-const getAllRides = async () => {
-  const rides = await Ride.find()
-    // .populate("ride", "name email")
-    .sort({ createdAt: -1 });
-  const totalUsers = await Ride.countDocuments()
+const getAllRides = async (userId: string, query: Record<string, string>) => {
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+  const queryBuilder = new QueryBuilder(Ride.find(), query);
+   const ridesQuery = queryBuilder
+    .search(riderSchemaSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
+
+  const [data, meta] = await Promise.all([
+    ridesQuery.build(),
+    queryBuilder.getMeta(),
+  ]);
+
+  // const rides = await Ride.find()
+  //   // .populate("ride", "name email")
+  //   .sort({ createdAt: -1 });
+  // const totalUsers = await Ride.countDocuments()
 
   return {
-    data: rides,
-    meta: {
-      total: totalUsers
-    }
-
+    data,
+    meta,
   };
 };
 
@@ -313,9 +329,7 @@ const updateRideStatus = async (userId: string, rideId: string, newStatus: RideS
     };
 
 
-    const updateData: Partial<IRide> = {
-      status: newStatus,
-      rideTimestamps: {
+    const updateData: Partial<IRide> = { status: newStatus, rideTimestamps: {
         ...ride.rideTimestamps,
         [statusToTimestampField[newStatus]]: now,
       },

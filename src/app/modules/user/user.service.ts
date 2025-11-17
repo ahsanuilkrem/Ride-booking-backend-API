@@ -41,11 +41,11 @@ const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken:
     if (!isUserExist) {
         throw new AppError(httpStatus.NOT_FOUND, "User not Found")
     }
-    // if (payload.role) {
-    //     if (decodedToken.role === Role.RIDER || decodedToken.role === Role.DRIVER) {
-    //         throw new AppError(httpStatus.FORBIDDEN, "yor are not Authorized")
-    //     }
-    // }
+    if (payload.role) {
+        if (decodedToken.role === Role.RIDER || decodedToken.role === Role.DRIVER) {
+            throw new AppError(httpStatus.FORBIDDEN, "yor are not Authorized")
+        }
+    }
 
 
     if (payload.isActive || payload.isDeleted || payload.isVerified) {
@@ -144,6 +144,34 @@ const getMe = async (userId: string) => {
     }
 };
 
+const updateUserProfile = async (id: string, payload: Partial<IUser>, decodedToken: JwtPayload) => {
+
+    const isUserExist = await User.findById(id);
+
+    if (!isUserExist) {
+        throw new AppError(httpStatus.NOT_FOUND, "User not Found")
+    }
+   
+     if (payload.isActive) {
+        if (decodedToken.isActive === IsActive.BLOCKED || decodedToken.isActive === IsActive.INACTIVE ) {
+            throw new AppError(httpStatus.FORBIDDEN, "yor are not Authorized")
+        }
+    }
+
+      if (payload.password) {
+        payload.password = await bcryptjs.hash(payload.password, envVars.BCRYPT_SALT_ROUND)
+    }
+
+    const newUpdateUser = await User.findByIdAndUpdate(id, payload, {
+         new: true,
+         runValidators: true 
+        })
+
+    return newUpdateUser
+
+}
+
+
 export const UserService = {
 
     createUser,
@@ -151,6 +179,7 @@ export const UserService = {
     getAllUsers,
     UserBlock,
     UserUnBlock,
-    getMe
+    getMe,
+    updateUserProfile
 
 }

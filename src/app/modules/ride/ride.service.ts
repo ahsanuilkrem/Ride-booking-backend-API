@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
-
 import AppError from "../../../errorHelpers/AppError";
 import { PAYMENT_STATUS } from "../payment/payment.interfaces";
 import { Payment } from "../payment/payment.model";
@@ -15,8 +13,6 @@ import { riderSchemaSearchableFields } from "./ride.constant";
 import { Driver } from "../driver/driver.model";
 import { availaStatus, IsStatus } from "../driver/driver.interfaces";
 import { ACTIVE_RIDE_STATUSES, getFullRideStatusFlow, rideStatusFlow } from "./rideStatus";
-
-
 
 
 const getTransactionId = () => {
@@ -34,9 +30,9 @@ const requestRide = async (payload: Partial<IRide>, userId: string) => {
 
     const user = await User.findById(userId)
 
-    // if (!user?.phone || !user?.address) {
-    //   throw new AppError(httpStatus.BAD_REQUEST, "Please Update Your My Profile ")
-    // }
+    if (!user?.phone || !user?.address) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Please Update Your My Profile ")
+    }
 
     const ride = await Ride.create([{
       userId: userId,
@@ -89,9 +85,11 @@ const requestRide = async (payload: Partial<IRide>, userId: string) => {
   }
 };
 
-export const cancelRide = async (rideId: string) => {
-  if (!Types.ObjectId.isValid(rideId)) {
-    throw new Error("Invalid Ride ID");
+export const cancelRide = async (userId: string, rideId: string, cancelStatus: RideStatus) => {
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
   const ride = await Ride.findById(rideId);
@@ -100,11 +98,34 @@ export const cancelRide = async (rideId: string) => {
     throw new Error("Ride not found");
   }
 
-  if (!ride.rideTimestamps?.acceptedAt) {
-    throw new Error("Cannot cancel: Ride has not been accepted yet");
+  if (ride.userId.toString() !== userId) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "You are not authorized to cancel this ride"
+    );
   }
 
-  const acceptedAt = new Date(ride.rideTimestamps.acceptedAt);
+  
+  if (
+    [
+      RideStatus.accepted,
+      RideStatus.completed,
+      RideStatus.picked_up,
+      RideStatus.cancelled_by_driver,
+      RideStatus.in_transit,
+    ].includes(ride.status)
+  ) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `Cannot cancel ride because its status is '${ride.status}'`
+    );
+  }
+
+   if (ride.status === RideStatus.cancelled_by_rider) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Ride is already cancelled");
+  }
+
+  const acceptedAt = new Date();
   const now = new Date();
 
   const diffMs = now.getTime() - acceptedAt.getTime();
@@ -117,8 +138,8 @@ export const cancelRide = async (rideId: string) => {
   if (ride.status !== RideStatus.requested) {
     throw new Error("Ride cannot be cancelled at this stage");
   }
-
-  ride.status = RideStatus.cancelled_by_rider;
+  ride.status = cancelStatus;
+  // ride.status = RideStatus.cancelled_by_rider;
   if (!ride.rideTimestamps) {
     ride.rideTimestamps = {};
   }
@@ -158,6 +179,27 @@ const getRideMyHistory = async (
   };
 };
 
+const getRideById = async (userId: string, rideId: string) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const ride = await Ride.findById(rideId);
+  if (!ride) {
+    throw new AppError(httpStatus.NOT_FOUND, "Ride not found");
+  }
+
+  if (ride.userId.toString() !== userId) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "You are not authorized to view this ride"
+    );
+  }
+
+  return ride;
+};
+
 const getAllRides = async (userId: string, query: Record<string, string>) => {
 
   const user = await User.findById(userId);
@@ -166,7 +208,7 @@ const getAllRides = async (userId: string, query: Record<string, string>) => {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
   const queryBuilder = new QueryBuilder(Ride.find(), query);
-   const ridesQuery = queryBuilder
+  const ridesQuery = queryBuilder
     .search(riderSchemaSearchableFields)
     .filter()
     .sort()
@@ -178,10 +220,6 @@ const getAllRides = async (userId: string, query: Record<string, string>) => {
     queryBuilder.getMeta(),
   ]);
 
-  // const rides = await Ride.find()
-  //   // .populate("ride", "name email")
-  //   .sort({ createdAt: -1 });
-  // const totalUsers = await Ride.countDocuments()
 
   return {
     data,
@@ -316,7 +354,7 @@ const updateRideStatus = async (userId: string, rideId: string, newStatus: RideS
     const now = new Date();
     const statusToTimestampField: Record<
       RideStatus,
-      keyof NonNullable<IRide["rideTimestamps"]> 
+      keyof NonNullable<IRide["rideTimestamps"]>
     > = {
       requested: "requestedAt",
       accepted: "acceptedAt",
@@ -329,7 +367,8 @@ const updateRideStatus = async (userId: string, rideId: string, newStatus: RideS
     };
 
 
-    const updateData: Partial<IRide> = { status: newStatus, rideTimestamps: {
+    const updateData: Partial<IRide> = {
+      status: newStatus, rideTimestamps: {
         ...ride.rideTimestamps,
         [statusToTimestampField[newStatus]]: now,
       },
@@ -400,6 +439,7 @@ export const RideService = {
   requestRide,
   cancelRide,
   getRideMyHistory,
+  getRideById,
   getAllRides,
   updateRideStatus,
   viewEarningHistory

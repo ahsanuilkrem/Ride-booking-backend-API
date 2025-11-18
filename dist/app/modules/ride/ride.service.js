@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable @typescript-eslint/no-unused-vars */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -14,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RideService = exports.cancelRide = void 0;
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const AppError_1 = __importDefault(require("../../../errorHelpers/AppError"));
 const payment_interfaces_1 = require("../payment/payment.interfaces");
 const payment_model_1 = require("../payment/payment.model");
@@ -37,9 +37,9 @@ const requestRide = (payload, userId) => __awaiter(void 0, void 0, void 0, funct
     session.startTransaction();
     try {
         const user = yield user_model_1.User.findById(userId);
-        // if (!user?.phone || !user?.address) {
-        //   throw new AppError(httpStatus.BAD_REQUEST, "Please Update Your My Profile ")
-        // }
+        if (!(user === null || user === void 0 ? void 0 : user.phone) || !(user === null || user === void 0 ? void 0 : user.address)) {
+            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Please Update Your My Profile ");
+        }
         const ride = yield ride_model_1.Ride.create([Object.assign({ userId: userId, status: ride_interfaces_1.RideStatus.requested, fare: 0 }, payload)], { session });
         const { pickupLocation, destinationLocation } = payload;
         if (!pickupLocation || !destinationLocation) {
@@ -69,19 +69,31 @@ const requestRide = (payload, userId) => __awaiter(void 0, void 0, void 0, funct
         throw error;
     }
 });
-const cancelRide = (rideId) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    if (!mongoose_1.Types.ObjectId.isValid(rideId)) {
-        throw new Error("Invalid Ride ID");
+const cancelRide = (userId, rideId, cancelStatus) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.findById(userId);
+    if (!user) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "User not found");
     }
     const ride = yield ride_model_1.Ride.findById(rideId);
     if (!ride) {
         throw new Error("Ride not found");
     }
-    if (!((_a = ride.rideTimestamps) === null || _a === void 0 ? void 0 : _a.acceptedAt)) {
-        throw new Error("Cannot cancel: Ride has not been accepted yet");
+    if (ride.userId.toString() !== userId) {
+        throw new AppError_1.default(http_status_codes_1.default.UNAUTHORIZED, "You are not authorized to cancel this ride");
     }
-    const acceptedAt = new Date(ride.rideTimestamps.acceptedAt);
+    if ([
+        ride_interfaces_1.RideStatus.accepted,
+        ride_interfaces_1.RideStatus.completed,
+        ride_interfaces_1.RideStatus.picked_up,
+        ride_interfaces_1.RideStatus.cancelled_by_driver,
+        ride_interfaces_1.RideStatus.in_transit,
+    ].includes(ride.status)) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Cannot cancel ride because its status is '${ride.status}'`);
+    }
+    if (ride.status === ride_interfaces_1.RideStatus.cancelled_by_rider) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Ride is already cancelled");
+    }
+    const acceptedAt = new Date();
     const now = new Date();
     const diffMs = now.getTime() - acceptedAt.getTime();
     const diffDays = diffMs / (1000 * 60 * 60 * 24);
@@ -91,7 +103,8 @@ const cancelRide = (rideId) => __awaiter(void 0, void 0, void 0, function* () {
     if (ride.status !== ride_interfaces_1.RideStatus.requested) {
         throw new Error("Ride cannot be cancelled at this stage");
     }
-    ride.status = ride_interfaces_1.RideStatus.cancelled_by_rider;
+    ride.status = cancelStatus;
+    // ride.status = RideStatus.cancelled_by_rider;
     if (!ride.rideTimestamps) {
         ride.rideTimestamps = {};
     }
@@ -121,6 +134,20 @@ const getRideMyHistory = (userId, query) => __awaiter(void 0, void 0, void 0, fu
         meta: meta,
     };
 });
+const getRideById = (userId, rideId) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.findById(userId);
+    if (!user) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "User not found");
+    }
+    const ride = yield ride_model_1.Ride.findById(rideId);
+    if (!ride) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "Ride not found");
+    }
+    if (ride.userId.toString() !== userId) {
+        throw new AppError_1.default(http_status_codes_1.default.UNAUTHORIZED, "You are not authorized to view this ride");
+    }
+    return ride;
+});
 const getAllRides = (userId, query) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_model_1.User.findById(userId);
     if (!user) {
@@ -137,10 +164,6 @@ const getAllRides = (userId, query) => __awaiter(void 0, void 0, void 0, functio
         ridesQuery.build(),
         queryBuilder.getMeta(),
     ]);
-    // const rides = await Ride.find()
-    //   // .populate("ride", "name email")
-    //   .sort({ createdAt: -1 });
-    // const totalUsers = await Ride.countDocuments()
     return {
         data,
         meta,
@@ -249,7 +272,8 @@ const updateRideStatus = (userId, rideId, newStatus) => __awaiter(void 0, void 0
             cancelled_by_rider: "cancelledAt",
             no_driver_available: "cancelledAt",
         };
-        const updateData = { status: newStatus, rideTimestamps: Object.assign(Object.assign({}, ride.rideTimestamps), { [statusToTimestampField[newStatus]]: now }),
+        const updateData = {
+            status: newStatus, rideTimestamps: Object.assign(Object.assign({}, ride.rideTimestamps), { [statusToTimestampField[newStatus]]: now }),
         };
         // ✅ Assign driver on first accept
         if (!ride.driver && newStatus === ride_interfaces_1.RideStatus.accepted) {
@@ -297,6 +321,7 @@ exports.RideService = {
     requestRide,
     cancelRide: exports.cancelRide,
     getRideMyHistory,
+    getRideById,
     getAllRides,
     updateRideStatus,
     viewEarningHistory

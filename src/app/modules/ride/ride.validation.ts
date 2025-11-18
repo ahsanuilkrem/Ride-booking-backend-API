@@ -57,7 +57,6 @@ export const partialRideUpdateSchema = z.object({
   destinationLocation: z.string().optional(),
   status: RideStatus.optional(),
 
-  // notes: z.string().max(300, "Notes cannot exceed 300 characters").optional(),
 });
 
 

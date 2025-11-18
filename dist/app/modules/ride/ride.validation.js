@@ -44,5 +44,4 @@ exports.partialRideUpdateSchema = zod_1.z.object({
     pickupLocation: zod_1.z.string().optional(),
     destinationLocation: zod_1.z.string().optional(),
     status: RideStatus.optional(),
-    // notes: z.string().max(300, "Notes cannot exceed 300 characters").optional(),
 });

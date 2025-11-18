@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../../../utils/catchAsyncts";
 import { sendResponse } from "../../../utils/sendRespone";
@@ -22,8 +21,13 @@ const requestRide = catchAsync(async (req: Request, res: Response) => {
 
 
 const cancelRide = catchAsync(async (req: Request, res: Response) => {
- const riderId = req.user.user;
-   const ride = await RideService.cancelRide(riderId);
+
+  const { rideStatus } = req.body;
+  const { rideId } = req.params;
+  const decodedToken = req.user as JwtPayload;
+
+
+  const ride = await RideService.cancelRide(decodedToken.userId, rideId, rideStatus,);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -41,16 +45,29 @@ const getRideMyHistory = catchAsync(async (req: Request, res: Response) => {
     statusCode: 200,
     success: true,
     message: "Ride history fetched successfully",
-    data:result.data,
-    meta:result.meta
-   
+    data: result.data,
+    meta: result.meta
+
+  });
+});
+
+const getRideById = catchAsync(async (req: Request, res: Response) => {
+  const decodedToken = req.user as JwtPayload;
+  const { rideId } = req.params;
+  const result = await RideService.getRideById(decodedToken.userId, rideId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Ride retrieved successfully",
+    data: result,
   });
 });
 
 
 const getAllRides = catchAsync(async (req: Request, res: Response) => {
-   const query = req.query as Record<string, string>;
-   const decodedToken = req.user as JwtPayload;
+  const query = req.query as Record<string, string>;
+  const decodedToken = req.user as JwtPayload;
   const rides = await RideService.getAllRides(decodedToken.userId, query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -62,10 +79,10 @@ const getAllRides = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateRideStatus = async (req: Request, res: Response) => {
-    const { rideId } = req.params;
-    const decodedToken = req.user as JwtPayload;
-    const { rideStatus } = req.body;
-   const result = await RideService.updateRideStatus(
+  const { rideId } = req.params;
+  const decodedToken = req.user as JwtPayload;
+  const { rideStatus } = req.body;
+  const result = await RideService.updateRideStatus(
     decodedToken.userId,
     rideId,
     rideStatus
@@ -80,16 +97,16 @@ const updateRideStatus = async (req: Request, res: Response) => {
 };
 
 const viewEarningHistory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const decodedToken = req.user as JwtPayload;
-    const result = await RideService.viewEarningHistory(decodedToken.userId);
+  const decodedToken = req.user as JwtPayload;
+  const result = await RideService.viewEarningHistory(decodedToken.userId);
 
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Driver Earning History has been retrieve successfully",
-      data: result,
-    });
-  }
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Driver Earning History has been retrieve successfully",
+    data: result,
+  });
+}
 );
 
 
@@ -99,6 +116,7 @@ export const rideControler = {
   requestRide,
   cancelRide,
   getRideMyHistory,
+  getRideById,
   getAllRides,
   updateRideStatus,
   viewEarningHistory,
